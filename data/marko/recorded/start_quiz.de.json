@@ -1,0 +1,8 @@
+{
+  "tool": "start_quiz",
+  "args": {
+    "lang": "de"
+  },
+  "recordedAt": "2026-09-17T17:18:18.749Z",
+  "text": "{\"quiz\":\"about-marko\",\"title\":\"Wie gut kennst du Marko?\",\"intro\":\"Zehn kurze Fragen, eine nach der anderen. Tipp auf eine Antwort; die Erklärungen kommen am Ende in einer kurzen Auswertung. Sag stopp, wann immer du willst.\",\"total\":10,\"correctSoFar\":0,\"card\":{\"type\":\"choices\",\"quiz\":\"about-marko\",\"number\":1,\"total\":10,\"question\":\"Wo ist Marko zu Hause?\",\"choices\":[{\"key\":\"A\",\"text\":\"Novi Sad, Serbien\"},{\"key\":\"B\",\"text\":\"Berlin, Deutschland\"},{\"key\":\"C\",\"text\":\"Belgrad, Serbien\"},{\"key\":\"D\",\"text\":\"Wien, Österreich\"}]}}"
+}

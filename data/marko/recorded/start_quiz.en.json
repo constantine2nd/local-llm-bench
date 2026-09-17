@@ -1,0 +1,8 @@
+{
+  "tool": "start_quiz",
+  "args": {
+    "lang": "en"
+  },
+  "recordedAt": "2026-09-17T17:18:18.457Z",
+  "text": "{\"quiz\":\"about-marko\",\"title\":\"How well do you know Marko?\",\"intro\":\"Ten quick questions, one at a time. Tap an answer; the explanations come in a short debrief at the end. Say stop whenever you like.\",\"total\":10,\"correctSoFar\":0,\"card\":{\"type\":\"choices\",\"quiz\":\"about-marko\",\"number\":1,\"total\":10,\"question\":\"Where is Marko based?\",\"choices\":[{\"key\":\"A\",\"text\":\"Novi Sad, Serbia\"},{\"key\":\"B\",\"text\":\"Berlin, Germany\"},{\"key\":\"C\",\"text\":\"Belgrade, Serbia\"},{\"key\":\"D\",\"text\":\"Vienna, Austria\"}]}}"
+}

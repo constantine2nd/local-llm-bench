@@ -1,0 +1,6 @@
+{
+  "tool": "get_contact",
+  "args": {},
+  "recordedAt": "2026-09-17T17:18:18.244Z",
+  "text": "{\"email\":\"marko.milic@yahoo.com\",\"linkedin\":\"https://www.linkedin.com/in/marko-milić-4332a81b9\",\"github\":\"https://github.com/constantine2nd\",\"about\":\"https://constantine2nd.github.io/about/\",\"blog\":\"https://constantine2nd.github.io/\",\"preferred\":\"email\",\"availability\":{\"booking\":\"https://calendar.app.google/NN4H7bCnNWssxNp38\",\"timezone\":\"Europe/Belgrade\",\"workOverlap\":\"~4h daily overlap with US Eastern\",\"status\":\"Open to senior engineering and architecture roles\",\"note\":\"Fully remote from Serbia since 2017; best reached by e-mail.\"}}"
+}

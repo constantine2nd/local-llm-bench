@@ -1,0 +1,6 @@
+{
+  "tool": "get_availability",
+  "args": {},
+  "recordedAt": "2026-09-17T17:18:18.315Z",
+  "text": "{\"booking\":\"https://calendar.app.google/NN4H7bCnNWssxNp38\",\"timezone\":\"Europe/Belgrade\",\"overlap\":\"~4h daily overlap with US Eastern\",\"note\":\"Share the booking link — it shows only Marko's open slots and books instantly. Times fall within his ~4h US-Eastern overlap.\"}"
+}

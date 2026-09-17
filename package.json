@@ -1,0 +1,15 @@
+{
+  "name": "local-llm-bench",
+  "version": "1.0.0",
+  "description": "Benchmark local Ollama models (qwen3 4b–32b) on the scenarios of Marko's AI assistant, and write a report",
+  "type": "module",
+  "private": true,
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "bench": "node bench.mjs",
+    "test": "node --test test/"
+  }
+}

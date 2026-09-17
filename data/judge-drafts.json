@@ -1,0 +1,35 @@
+{
+  "note": "Quiz debrief drafts with known bad sentences (0-based indices), and the quiz result they were written from.",
+  "sources": "Quiz \"How well do you know Marko?\": 4 of 10 correct.\nKNEW (answered correctly):\n- Where is Marko based? → Novi Sad, Serbia\n- Which open-source project has he been a lead contributor to since 2017? → Open Bank Project (OBP-API)\n- Which language is OBP-API mostly written in? → Scala\n- Where did he study computer science? → Faculty of Technical Sciences, University of Novi Sad\nMISSED (answered wrong):\n- What is his conviction about technology and design? → correct: No technology can fix bad design, it can only mitigate it. No technology can fix bad design, it can only mitigate it. That is why his work starts with a written design.\n- Which four things does he care about above any particular tool? → correct: Identity, security, AI, traceability. Identity (who is acting), security (the safe path is the easy path), AI (agents at work, people in control) and traceability (who did what, when and why).\n- After his CI work in 2026, how long did an OBP-API pull-request build take? → correct: About 18 minutes, down from 32. From about 32 to about 18 minutes: compile once, then a parallel test matrix.\n- What did he do with the CI pipeline once it worked? → correct: Handed it to a younger colleague, with the reasoning written down. He handed it over with the reasoning documented; the colleague has since grown it to 10 shards.\n- What is this chat itself running on? → correct: A multi-tenant MCP server and an embeddable chat widget he built.\n- Which identity standards has he built with? → correct: OAuth 1.0a, OAuth2 and OpenID Connect. He built, maintained and retired an OAuth 1.0a provider, and built the OAuth2 / OpenID Connect resource server, consents and SCA, plus Keycloak and Ory Hydra integrations.",
+  "drafts": [
+    {
+      "text": "It is wonderful to see you know about Marko's base in Novi Sad, his long-standing work as a lead contributor to the Open Bank Project in Scala, and his studies at the Faculty of Technical Sciences. His core conviction is that no technology can fix bad design, it can only mitigate it, which is why his work starts with a written design. Above any particular tool, he cares about identity, security, AI, and traceability. Feel free to ask more about his projects or get in touch!",
+      "bad": []
+    },
+    {
+      "text": "Marko knows you are based in Novi Sad and familiar with his work on the Open Bank Project in Scala, as well as his studies at the University of Novi Sad. As for his approach, no technology can fix bad design, it can only mitigate it, which is why his work starts with a written design. Above any particular tool, he cares about identity, security, AI, and traceability. Feel free to ask about his projects or experience next!",
+      "bad": [
+        0
+      ]
+    },
+    {
+      "text": "You clearly know Marko's background, including his academic roots in Novi Sad and his extensive work on the Open Bank Project. While you missed a few details, it is worth remembering that he believes no technology can fix bad design, only mitigate it, and that his work is always guided by identity, security, AI, and traceability. It is also interesting to note that this chat interface is a custom tool he built himself, rather than a generic service. You could ask about his specific experience with identity standards or his current availability for collaboration next.",
+      "bad": [
+        1
+      ]
+    },
+    {
+      "text": "You knew where Marko is based and that he studied in Novi Sad, and you also recognised the identity standards he builds with. He cut the OBP-API build from about 32 to about 18 minutes and handed the pipeline to a colleague, who grew it to 12 shards. You could ask about his OAuth work next.",
+      "bad": [
+        0,
+        1
+      ]
+    },
+    {
+      "text": "You knew his base, his open-source project, its language and where he studied. He believes speed matters more than design when deadlines are tight. Ask about his projects next.",
+      "bad": [
+        1
+      ]
+    }
+  ]
+}

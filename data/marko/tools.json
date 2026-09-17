@@ -1,0 +1,243 @@
+[
+  {
+    "name": "about_me",
+    "title": "About Marko",
+    "description": "Who Marko Milić is: headline, summary, focus areas, what he writes about, current availability and links. Call this first for any 'who is he / what does he do' question.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "execution": {
+      "taskSupport": "forbidden"
+    }
+  },
+  {
+    "name": "list_experience",
+    "title": "Work experience",
+    "description": "Marko's work history, newest first: company, role, dates, summary, highlights, tech. Also returns education. Optionally filter by a word or restrict to the current position.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Filter word: company, role or technology"
+        },
+        "current": {
+          "type": "boolean",
+          "description": "Only the current position"
+        }
+      },
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "execution": {
+      "taskSupport": "forbidden"
+    }
+  },
+  {
+    "name": "list_skills",
+    "title": "Skills",
+    "description": "Technical skills grouped by category (languages, backend, security & identity, AI integrations) plus spoken languages. Optionally filter by a word.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Filter word, e.g. 'security' or 'TypeScript'"
+        }
+      },
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "execution": {
+      "taskSupport": "forbidden"
+    }
+  },
+  {
+    "name": "start_quiz",
+    "title": "Start the quiz",
+    "description": "Starts a short multiple-choice quiz about Marko (\"How well do you know Marko?\"). Returns the intro and question 1 as a card: the widget shows the question and the choices, so write only the intro, never the question. Then call answer_quiz_question for each answer.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "lang": {
+          "type": "string",
+          "description": "Visitor language code: en, sr or de"
+        },
+        "quiz": {
+          "type": "string",
+          "description": "Quiz id (default: the first)"
+        }
+      },
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "execution": {
+      "taskSupport": "forbidden"
+    }
+  },
+  {
+    "name": "answer_quiz_question",
+    "title": "Check a quiz answer",
+    "description": "Checks the visitor's answer to quiz question <number> and returns whether it was correct, the explanation, the running score and the next question as a card the widget shows (or finished=true with the final score): react and explain, do not write the next question. Pass correctSoFar from the previous result.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Question number being answered"
+        },
+        "choice": {
+          "type": "string",
+          "description": "The visitor's pick: a letter like 'B', 'B) text', or the choice text"
+        },
+        "correctSoFar": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Correct answers before this one (from the previous result)"
+        },
+        "lang": {
+          "type": "string",
+          "description": "Visitor language code: en, sr or de"
+        },
+        "quiz": {
+          "type": "string",
+          "description": "Quiz id (default: the first)"
+        }
+      },
+      "required": [
+        "number",
+        "choice"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "execution": {
+      "taskSupport": "forbidden"
+    }
+  },
+  {
+    "name": "get_quiz",
+    "title": "The whole quiz",
+    "description": "The whole quiz about Marko in one language, correct answers and explanations included, for an application that runs the quiz itself and checks answers without a model. When you are chatting with a visitor, use start_quiz and answer_quiz_question instead, so the answers are never in your context.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "lang": {
+          "type": "string",
+          "description": "Language code: en, sr or de"
+        },
+        "quiz": {
+          "type": "string",
+          "description": "Quiz id (default: the first)"
+        }
+      },
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "execution": {
+      "taskSupport": "forbidden"
+    }
+  },
+  {
+    "name": "list_projects",
+    "title": "Projects",
+    "description": "Selected projects and open-source work with links and the tech used. Optionally filter by a word.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Filter word, e.g. 'MCP' or 'chat'"
+        }
+      },
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "execution": {
+      "taskSupport": "forbidden"
+    }
+  },
+  {
+    "name": "get_contact",
+    "title": "Contact",
+    "description": "How to reach Marko: e-mail, LinkedIn, GitHub, blog. Use whenever someone wants to hire him, collaborate, or simply get in touch.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "execution": {
+      "taskSupport": "forbidden"
+    }
+  },
+  {
+    "name": "get_availability",
+    "title": "Free time / book a call",
+    "description": "How to see Marko's free time and book an intro or interview call. Returns his booking page — which shows only his open slots and books instantly with a calendar invite — plus his timezone and US-Eastern overlap. Call this whenever someone asks when Marko is free, wants to schedule, or wants to book a call, then give them the booking link. (Read-only: booking happens on the page, not in chat.)",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
+    "execution": {
+      "taskSupport": "forbidden"
+    }
+  }
+]

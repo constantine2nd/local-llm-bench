@@ -1,0 +1,8 @@
+{
+  "tool": "start_quiz",
+  "args": {
+    "lang": "sr"
+  },
+  "recordedAt": "2026-09-17T17:18:18.603Z",
+  "text": "{\"quiz\":\"about-marko\",\"title\":\"Koliko dobro poznajete Marka?\",\"intro\":\"Deset kratkih pitanja, jedno po jedno. Dodirnite odgovor; objašnjenja stižu u kratkom osvrtu na kraju. Recite stop kad god želite.\",\"total\":10,\"correctSoFar\":0,\"card\":{\"type\":\"choices\",\"quiz\":\"about-marko\",\"number\":1,\"total\":10,\"question\":\"Gde Marko živi i radi?\",\"choices\":[{\"key\":\"A\",\"text\":\"Novi Sad, Srbija\"},{\"key\":\"B\",\"text\":\"Berlin, Nemačka\"},{\"key\":\"C\",\"text\":\"Beograd, Srbija\"},{\"key\":\"D\",\"text\":\"Beč, Austrija\"}]}}"
+}
