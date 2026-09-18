@@ -92,6 +92,9 @@ Ollama on another address: `OLLAMA_HOST=host:port ./run.sh`. The downloaded mode
 - **Thinking:** qwen3 thinks before answering. The benchmark keeps the thinking apart from the answer and counts its
   time; the `qwen3:4b` build tested so far thinks even when asked not to.
 - **Answers differ between runs** (temperature 0 still varies slightly between machines and versions).
+- **A case can hit the time limit** on a slow machine, above all the quiz debrief, whose prompt is long: the report
+  marks it as failed, which is a fair verdict for that machine. To let it finish anyway, raise the limit and continue
+  the same run: `./run.sh --timeout 1800 --resume reports/<folder>`.
 - **The data** in `data/marko/` is Marko's published profile as the assistant's tools returned it on the date shown
   in the report.
 

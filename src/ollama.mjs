@@ -1,26 +1,52 @@
 // Ollama's native API: version, models, pull, loaded memory, chat with tools. Unlike its OpenAI-compatible API, it
 // reports load, prompt and generation times and returns the thinking separately, which the report needs.
+import http from "node:http";
+import https from "node:https";
+
 export const OLLAMA_URL = (() => {
   const h = process.env.OLLAMA_HOST || "127.0.0.1:11434";
   return (/^https?:\/\//.test(h) ? h : `http://${h}`).replace(/\/+$/, "");
 })();
 
-async function api(pathname, { method = "GET", body, signal, timeoutMs = 15000 } = {}) {
-  const ctrl = new AbortController();
-  const timer = timeoutMs ? setTimeout(() => ctrl.abort(), timeoutMs) : null;
-  const stop = () => ctrl.abort();
-  signal?.addEventListener("abort", stop, { once: true });
+// One request to Ollama. Node's built-in fetch gives up after 300 s of waiting for a response, and a local model can
+// think for longer, so this uses the HTTP client directly: the only limit is `timeoutMs`. A lost connection (the
+// computer slept, Ollama restarted) is retried once; a timeout and an error answer are not.
+function request(pathname, { method = "GET", body, signal, timeoutMs = 15000 } = {}) {
+  const url = new URL(OLLAMA_URL + pathname);
+  const client = url.protocol === "https:" ? https : http;
+  return new Promise((resolve, reject) => {
+    const payload = body ? Buffer.from(JSON.stringify(body)) : null;
+    const req = client.request(url, { method, headers: payload ? { "Content-Type": "application/json", "Content-Length": payload.length } : {} }, (res) => {
+      const chunks = [];
+      res.on("data", (c) => chunks.push(c));
+      res.on("end", () => {
+        const text = Buffer.concat(chunks).toString("utf8");
+        if (res.statusCode >= 400) return reject(new Error(`ollama ${pathname} ${res.statusCode}: ${text.slice(0, 300)}`));
+        try { resolve(text ? JSON.parse(text) : {}); } catch (e) { reject(new Error(`ollama ${pathname}: unreadable answer (${e.message})`)); }
+      });
+    });
+    const stop = (e) => { req.destroy(e); };
+    signal?.addEventListener("abort", () => stop(new Error("aborted")), { once: true });
+    if (timeoutMs) req.setTimeout(timeoutMs, () => stop(Object.assign(new Error("timeout"), { timedOut: true })));
+    req.on("error", (e) => reject(e.timedOut || e.message === "timeout"
+      ? Object.assign(new Error(`ollama ${pathname}: no answer within ${Math.round(timeoutMs / 1000)} s`), { timedOut: true })
+      : e));
+    req.end(payload);
+  });
+}
+
+async function api(pathname, options = {}) {
   try {
-    const r = await fetch(OLLAMA_URL + pathname, { method, headers: body ? { "Content-Type": "application/json" } : {}, body: body ? JSON.stringify(body) : undefined, signal: ctrl.signal });
-    const text = await r.text();
-    if (!r.ok) throw new Error(`ollama ${pathname} ${r.status}: ${text.slice(0, 300)}`);
-    return text ? JSON.parse(text) : {};
+    return await request(pathname, options);
   } catch (e) {
-    if (e.name === "AbortError") throw new Error(`ollama ${pathname}: no answer within ${Math.round(timeoutMs / 1000)} s`);
-    throw e;
-  } finally {
-    if (timer) clearTimeout(timer);
-    signal?.removeEventListener("abort", stop);
+    if (e.timedOut || /^ollama .* \d{3}:/.test(e.message) || options.signal?.aborted) throw e;
+    await new Promise((r) => setTimeout(r, 3000)); // the connection dropped: once more
+    try {
+      return await request(pathname, options);
+    } catch (again) {
+      if (again.timedOut) throw again;
+      throw new Error(`ollama ${pathname}: lost the connection (${again.message}). Did the computer sleep, or Ollama restart?`);
+    }
   }
 }
 
@@ -66,7 +92,9 @@ export const toOllamaTools = (tools) => tools.map((t) => ({ type: "function", fu
 const parseArgs = (a) => { if (a && typeof a === "object") return a; try { return JSON.parse(a); } catch { return {}; } };
 const sec = (ns) => (ns ? ns / 1e9 : 0);
 
-// One model call. → { text, thinking, toolCalls, stats: { seconds, loadSeconds, promptTokens, promptSeconds, outputTokens, outputSeconds } }
+// One model call. → { text, thinking, toolCalls, stats: { seconds, modelSeconds, gapSeconds, loadSeconds, promptTokens,
+// promptSeconds, outputTokens, outputSeconds } }. `seconds` is wall-clock, `modelSeconds` what Ollama itself reports;
+// a large `gapSeconds` between them means the machine paused (sleep), and the report leaves those out of its timings.
 export async function chat({ model, system, messages, tools = [], think, ctx, timeoutMs, signal }) {
   const body = {
     model, stream: false, keep_alive: "15m",
@@ -79,12 +107,14 @@ export async function chat({ model, system, messages, tools = [], think, ctx, ti
   const j = await api("/api/chat", { method: "POST", body, signal, timeoutMs });
   if (j.error) throw new Error(`ollama chat: ${j.error}`);
   const msg = j.message || {};
+  const seconds = (Date.now() - started) / 1000;
+  const modelSeconds = sec(j.total_duration) || sec(j.load_duration) + sec(j.prompt_eval_duration) + sec(j.eval_duration);
   return {
     text: msg.content || "",
     thinking: msg.thinking || "",
     toolCalls: (msg.tool_calls || []).map((c, i) => ({ id: `call_${i}`, name: c.function?.name, args: parseArgs(c.function?.arguments) })),
     stats: {
-      seconds: (Date.now() - started) / 1000,
+      seconds, modelSeconds: +modelSeconds.toFixed(2), gapSeconds: +Math.max(0, seconds - modelSeconds).toFixed(1),
       loadSeconds: sec(j.load_duration),
       promptTokens: j.prompt_eval_count || 0, promptSeconds: sec(j.prompt_eval_duration),
       outputTokens: j.eval_count || 0, outputSeconds: sec(j.eval_duration),

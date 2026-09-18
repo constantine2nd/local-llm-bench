@@ -152,13 +152,19 @@ test("the recorded tools: Marko's data, the quiz per language, the two server-on
 
 // ── report ───────────────────────────────────────────────────────────────────
 test("the verdict per model, and the report escapes what the model wrote", () => {
-  const turn = (seconds) => ({ seconds, rounds: [{ outputTokens: 50, outputSeconds: 2, promptTokens: 1000, promptSeconds: 1, doneReason: "stop" }] });
+  const turn = (seconds, gapSeconds = 0) => ({ seconds: seconds + gapSeconds, rounds: [{ seconds: seconds + gapSeconds, modelSeconds: seconds, gapSeconds, outputTokens: 50, outputSeconds: 2, promptTokens: 1000, promptSeconds: 1, doneReason: "stop" }] });
   const model = (passes, seconds) => ({ name: "m", cases: passes.map((p, i) => ({ id: `c${i}`, group: "grounded", pass: p, checks: [{ name: "x", pass: p }], turns: [turn(seconds)] })) });
   assert.equal(summarize(model([true, true, true, true, true, true, true], 6)).verdict, "fit");
   assert.equal(summarize(model([true, true, true, false], 6)).verdict, "fallback"); // 75%
   assert.equal(summarize(model([true, true, true, true], 40)).verdict, "no"); // too slow
   const s = summarize(model([true], 6));
   assert.equal(s.outputTokensPerSecond, 25);
+  // A machine that sleeps mid-run adds wall-clock time, not model time: the verdict must not change.
+  const slept = { name: "m", cases: [0, 1, 2, 3].map((i) => ({ id: `c${i}`, group: "grounded", pass: true, checks: [{ name: "x", pass: true }], turns: [turn(6, i === 2 ? 43000 : 0)] })) };
+  const ss = summarize(slept);
+  assert.equal(ss.verdict, "fit");
+  assert.equal(ss.medianTurnSeconds, 6);
+  assert.equal(ss.pausedSeconds, 43000);
   const html = renderHtml({ label: "t", settings: {}, machine: { gpus: [] }, models: [{ name: "m", cases: [{ id: "x", group: "g", lang: "en", title: "<b>", pass: false, checks: [], turns: [{ question: "q", answer: "<script>alert(1)</script>", rounds: [] }] }] }] });
   assert.ok(!html.includes("<script>alert(1)</script>"));
   assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);

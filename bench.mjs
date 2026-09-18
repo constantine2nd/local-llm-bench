@@ -101,6 +101,7 @@ const save = () => {
 
 const fmt = (s) => (s >= 60 ? `${Math.floor(s / 60)}m ${Math.round(s % 60)}s` : `${s.toFixed(1)}s`);
 const started = Date.now();
+let timedOut = 0;
 
 for (const name of models) {
   let entry = results.models.find((m) => m.name === name);
@@ -145,6 +146,7 @@ for (const name of models) {
       record.seconds = (Date.now() - caseStarted) / 1000;
       entry.cases.push(record);
       const failedChecks = (record.checks || []).filter((c) => !c.pass).map((c) => c.name);
+      if (/no answer within/.test(record.error || "")) timedOut++;
       line(`${record.pass ? "✓" : "✗"} ${fmt(record.seconds)}${failedChecks.length ? ` · failed: ${failedChecks.join("; ").slice(0, 70)}` : ""}`);
       process.stdout.write("\n");
       save();
@@ -168,6 +170,7 @@ let packed = false;
 try { execFileSync("tar", ["-czf", archive, "-C", path.dirname(dir), path.basename(dir)], { stdio: "ignore" }); packed = true; } catch { /* no tar */ }
 
 log(`\nDone in ${fmt((Date.now() - started) / 1000)}.`);
+if (timedOut) log(`${timedOut} case(s) hit the ${settings.timeoutSeconds} s limit per model call: this machine needs longer for them (a slow model is a result too). To let them finish: --timeout ${settings.timeoutSeconds * 3} --resume ${path.relative(ROOT, dir)}`);
 log(`Report    ${path.join(dir, "report.html")}  (open it in a browser)`);
 if (packed) log(`Send back ${archive}\n          It holds the report, the answers and this machine's description (OS, CPU, RAM, GPU); nothing else.`);
 else log(`Send back the folder ${dir}`);

@@ -16,7 +16,10 @@ export function summarize(model) {
   const done = cases.filter((c) => !c.skipped);
   const passed = done.filter((c) => c.pass).length;
   const checks = done.flatMap((c) => c.checks || []);
-  const turnSeconds = done.filter((c) => c.group !== "roles").flatMap((c) => (c.turns || []).map((t) => t.seconds)).filter((x) => x > 0);
+  // Timings from what the model itself reports, so a machine that slept mid-run does not distort them.
+  const turnSeconds = done.filter((c) => c.group !== "roles")
+    .map((c) => (c.turns || []).reduce((sum, t) => sum + (t.rounds || []).reduce((s, r) => s + (r.modelSeconds ?? r.seconds ?? 0), 0), 0))
+    .filter((x) => x > 0);
   const rounds = done.flatMap((c) => (c.turns || []).flatMap((t) => t.rounds || []));
   const outRate = rounds.filter((r) => r.outputSeconds > 0).map((r) => r.outputTokens / r.outputSeconds);
   const inRate = rounds.filter((r) => r.promptSeconds > 0).map((r) => r.promptTokens / r.promptSeconds);
@@ -27,6 +30,7 @@ export function summarize(model) {
     medianTurnSeconds: round(median(turnSeconds)), p90TurnSeconds: round(pct(turnSeconds, 0.9)),
     outputTokensPerSecond: round(median(outRate)), promptTokensPerSecond: round(median(inRate), 0),
     modelCalls: rounds.length, cutOff: rounds.filter((r) => r.doneReason === "length").length, // calls that ran out of room
+    pausedSeconds: Math.round(rounds.reduce((s, r) => s + (r.gapSeconds > 60 ? r.gapSeconds : 0), 0)), // the machine slept
   };
   const v = VERDICTS.find((x) => s.casePassRate >= x.minPass && s.medianTurnSeconds != null && s.medianTurnSeconds <= x.maxMedianSeconds);
   s.verdict = v ? v.id : "no";
@@ -45,7 +49,7 @@ function caseHtml(c) {
       ${t.stoppedAt ? `<p class="dim">stopped: ${esc(t.stoppedAt)}</p>` : ""}
       ${t.corrected ? `<p class="dim">output guard asked again (not from a tool: ${esc(t.corrected.join(", "))})</p>` : ""}
       <div class="a">${esc(t.answer || "(no answer)")}</div>
-      <p class="dim">${round(t.seconds)} s · ${(t.rounds || []).length} model call(s) · ${(t.rounds || []).map((r) => `${r.promptTokens}→${r.outputTokens} tok`).join(", ")}</p>
+      <p class="dim">${round((t.rounds || []).reduce((s, r) => s + (r.modelSeconds ?? r.seconds ?? 0), 0))} s of model time · ${(t.rounds || []).length} model call(s) · ${(t.rounds || []).map((r) => `${r.promptTokens}→${r.outputTokens} tok`).join(", ")}${(t.rounds || []).some((r) => r.gapSeconds > 60) ? ` · the machine paused for ${round((t.rounds || []).reduce((s, r) => s + (r.gapSeconds > 60 ? r.gapSeconds : 0), 0) / 60)} min during this case` : ""}</p>
       ${t.thinking ? `<details><summary>thinking (${t.thinking.length} characters)</summary><pre>${esc(t.thinking)}</pre></details>` : ""}
       ${(t.toolResults || []).length ? `<details><summary>tool results</summary>${t.toolResults.map((r) => `<p><code>${esc(r.name)}</code></p><pre>${esc(r.text)}</pre>`).join("")}</details>` : ""}
     </div>`).join("");
@@ -106,9 +110,9 @@ export function renderHtml(results) {
   <dt>Ollama</dt><dd>${esc(results.ollama?.version)} at ${esc(results.ollama?.url)}</dd>
   <dt>Benchmark</dt><dd>local-llm-bench ${esc(results.version)} · Marko's facts recorded ${esc(results.dataDate)}</dd>
 </dl></div>
-<div class="wrap"><table><thead><tr><th>Model</th><th>Verdict</th><th>Cases passed</th><th>Checks</th><th>Answer time median / p90</th><th>Tokens/s out / in</th><th>Load</th><th>Memory</th><th>Errors</th></tr></thead>
+<div class="wrap"><table><thead><tr><th>Model</th><th>Verdict</th><th>Cases passed</th><th>Checks</th><th>Model time per question, median / p90</th><th>Tokens/s out / in</th><th>Load</th><th>Memory</th><th>Errors</th></tr></thead>
 <tbody>${rows}</tbody></table></div>
-<p class="dim">Verdict: "fit for visitors" = at least 85% of cases pass every check and a visitor's question takes 10 s or less (median); "only as a fallback" = 70% and 25 s. Answer time counts every model call and tool call of one question. Checks are automatic; read the answers below for quality.</p>
+<p class="dim">Verdict: "fit for visitors" = at least 85% of cases pass every check and a visitor's question takes 10 s or less (median); "only as a fallback" = 70% and 25 s. The time counts every model call of one question, as the model reports it, so a machine that slept during the run does not distort it. Checks are automatic; read the answers below for quality.</p>
 ${sections}
 </main></body></html>`;
 }
